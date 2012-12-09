@@ -5,13 +5,19 @@ import android.app.Activity;
 import android.view.Menu;
 
 public class Snakegame extends Activity {
-
+	GameClient myClient;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_snakegame);
+        
     }
-
+    @Override
+    public void onStart(){
+    	super.onStart();
+    	myClient = (GameClient)findViewById(R.id.GameClient1);
+    	myClient.onStart();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_snakegame, menu);
