@@ -3,6 +3,7 @@ package com.montycarlo.snake;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.Window;
 
 public class Snakegame extends Activity {
 	GameClient myClient;
@@ -10,7 +11,6 @@ public class Snakegame extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_snakegame);
-        
     }
     @Override
     public void onStart(){

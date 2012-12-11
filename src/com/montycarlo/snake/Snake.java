@@ -1,24 +1,42 @@
 package com.montycarlo.snake;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class Snake extends Drawable {
-	Paint myPaint = new Paint();
-	int myColour = Color.rgb(0, 220, 50);
-	int x, y;
-	int w;
+	private Paint myPaint = new Paint();
+	private int myColour = Color.rgb(0, 220, 50);
+	private List<SnakeNode> myNodes;
 	public Snake(int w){
-		this.w = w;
+		myPaint.setColor(myColour);
+		myNodes = new ArrayList<SnakeNode>();
+		addNodes(w);
+	}
+	public void addNodes(int count){
+		if(count <= 0) return;
+		SnakeNode head;
+		if(myNodes.size() == 0) {
+			myNodes.add(head = new SnakeNode(0, 0));
+			head.setPaint(myPaint);
+			count--;
+		}else head = myNodes.get(0);
+		for(int i=0;i<count;i++) {
+			SnakeNode stack = new SnakeNode(head.getX(), head.getY());
+			myNodes.add(stack);
+			stack.setPaint(myPaint);
+		}
 	}
 	@Override
 	public void draw(Canvas canvas) {
 		// TODO Auto-generated method stub
-		myPaint.setColor(myColour);
-		canvas.drawRect(x, y, x+w, y+w*5, myPaint);
+		for(SnakeNode a : myNodes) a.draw(canvas);
 	}
 
 	@Override
@@ -36,8 +54,16 @@ public class Snake extends Drawable {
 	public void setColorFilter(ColorFilter arg0) {
 		// TODO Auto-generated method stub
 	}
-	public void shift(int x, int y){
-		this.x += x;
-		this.y += y;
+	public void shift(float x, float y){
+		if(myNodes.size() == 0) return;
+		SnakeNode head = myNodes.get(0);
+		for(int i=myNodes.size()-1;i>0;i--) {
+			SnakeNode a = myNodes.get(i);
+			SnakeNode b = myNodes.get(i-1);
+			a.setPos(b.getX(), b.getY());
+			a.wrap((int)(GameClient.nodeW * GameClient.nodeWidth), (int)(GameClient.nodeH * GameClient.nodeWidth));
+		}
+		head.shift(x, y);
+		head.wrap((int)(GameClient.nodeW * GameClient.nodeWidth), (int)(GameClient.nodeH * GameClient.nodeWidth));
 	}
 }

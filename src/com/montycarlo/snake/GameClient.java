@@ -7,34 +7,33 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import  android.view.View;
 
 public class GameClient extends View {
-	private int myWidth;
-	private int myHeight;
 	private Paint myPaint;
-	private int nodeW;
-	private int nodeH;
-	private Rect newRect;
-	private int greyedColour = Color.rgb(220, 220, 220);
+	private int greyedColour = Color.rgb(235, 235, 235);
 	private Snake mySnake;
 	private Timer moveTimer;
-	private final int nodeWidth = 25;
+	public static int nodeW;
+	public static int nodeH;
+	public static int myWidth;
+	public static int myHeight;
+	public static float nodeWidth;
+	public static final int nodeCount = 25;
 	public GameClient(Context context, AttributeSet attributes){
 		super(context, attributes);
 		DisplayMetrics myMetrics = getContext().getResources().getDisplayMetrics();
 		myWidth = myMetrics.widthPixels;
 		myHeight = myMetrics.heightPixels;
-		nodeW = myWidth / nodeWidth;
-		nodeH = myHeight / nodeWidth;
+		nodeWidth = (float)myWidth/(float)nodeCount;
+		nodeW = nodeCount;
+		nodeH = (int) (myHeight / nodeWidth);
 		setMinimumWidth(myWidth);
 		setMinimumHeight(myHeight);
 		myPaint = new Paint();
-		newRect = new Rect();
-		mySnake = new Snake(nodeWidth);
+		mySnake = new Snake(5);
 	}
 	public class GameTick extends TimerTask {
 		@Override
@@ -61,8 +60,7 @@ public class GameClient extends View {
 		for(int i=0;i<nodeW;i++){
 			for(int q=0;q<nodeH;q++){
 				if(((i + q) % 2) == 0) continue;
-				newRect.set(i*nodeWidth, q*nodeWidth, i*nodeWidth+nodeWidth, q*nodeWidth+nodeWidth);
-				canvas.drawRect(newRect, myPaint);
+				canvas.drawRect(i*nodeWidth, q*nodeWidth, i*nodeWidth+nodeWidth, q*nodeWidth+nodeWidth, myPaint);
 			}
 		}
 		mySnake.draw(canvas);
