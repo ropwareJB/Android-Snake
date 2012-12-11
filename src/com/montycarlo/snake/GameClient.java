@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.MotionEvent;
@@ -21,6 +20,7 @@ public class GameClient extends View implements OnTouchListener{
 	private Snake mySnake;
 	private Timer moveTimer;
 	private float vx, vy;
+	private boolean gameover;
 	private ArrayList<foodNode> myFood;
 	public static int nodeW;
 	public static int nodeH;
@@ -39,21 +39,26 @@ public class GameClient extends View implements OnTouchListener{
 		setMinimumWidth(myWidth);
 		setMinimumHeight(myHeight);
 		myPaint = new Paint();
-		mySnake = new Snake(5);
 		vx = 0;
 		vy = nodeWidth;
 		myFood = new ArrayList<foodNode>();
 		addFood(1);
+		restart();
 	}
 	public void addFood(int count){
 		foodNode newFood;
-		int sx, sy;
+		float[] newPos;
 		for(int i=0;i<count;i++){
-			sx = (int) Math.floor(Math.random() * nodeW);
-			sy = (int) Math.floor(Math.random() * nodeH);
-			newFood = new foodNode(sx * nodeWidth, sy * nodeWidth);
+			newPos = randPos();
+			newFood = new foodNode(newPos[0], newPos[1]);
 			myFood.add(newFood);
 		}
+	}
+	public float[] randPos(){
+		float sx, sy;
+		sx = ((int) Math.floor(Math.random() * nodeW)) * nodeWidth;
+		sy = ((int) Math.floor(Math.random() * nodeH)) * nodeWidth;
+		return new float[]{sx, sy};
 	}
 	public class GameTick extends TimerTask {
 		@Override
@@ -70,6 +75,10 @@ public class GameClient extends View implements OnTouchListener{
 	}
 	public boolean onTouch(View v, MotionEvent event){
 		if(event.getAction() != MotionEvent.ACTION_DOWN) return true;
+		if(gameover) {
+			restart();
+			onResume();
+		}
 		float[] vxs = {0, nodeWidth, 0, -nodeWidth};
 		float[] vys = {nodeWidth, 0, -nodeWidth, 0};
 		int ind = 0;
@@ -77,7 +86,7 @@ public class GameClient extends View implements OnTouchListener{
 		else if(vx > 0 && vy == 0) ind = 1;
 		else if(vx == 0 && vy < 0) ind = 2;
 		else if(vx < 0 && vy == 0) ind = 3;
-		if(event.getY() > myHeight/2) ind--;
+		if(event.getX() > myWidth/2) ind--;
 		else ind++;
 		if(ind<0) ind += vxs.length;
 		ind %= vxs.length;
@@ -87,7 +96,31 @@ public class GameClient extends View implements OnTouchListener{
 	}
 	private void gameTick(){
 		mySnake.shift(vx, vy);
+		testGameOver();
+		int[] pos = mySnake.getHeadPosIndex();
+		for(foodNode n : myFood) testEat(n, pos);
 		this.postInvalidate();
+	}
+	private void testEat(foodNode node, int[] pos){
+		if(node.getindX() == pos[0] && node.getindY() == pos[1]){
+			if(myFood.size()>1) myFood.remove(node);
+			else{
+				float[] newPos = randPos();
+				node.setX(newPos[0]);
+				node.setY(newPos[1]);
+			}
+			mySnake.addNodes(1);
+		}
+	}
+	private void testGameOver(){
+		if(mySnake.testEatSelf()){
+			moveTimer.cancel();
+			gameover = true;
+		}
+	}
+	private void restart(){
+		mySnake = new Snake(5);
+		gameover = false;
 	}
 	@Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
 		setMeasuredDimension(getContext().getResources().getDisplayMetrics().widthPixels, getContext().getResources().getDisplayMetrics().heightPixels);

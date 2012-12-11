@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -61,9 +62,30 @@ public class Snake extends Drawable {
 			SnakeNode a = myNodes.get(i);
 			SnakeNode b = myNodes.get(i-1);
 			a.setPos(b.getX(), b.getY());
-			a.wrap((int)(GameClient.nodeW * GameClient.nodeWidth), (int)(GameClient.nodeH * GameClient.nodeWidth));
+			a.wrap(GameClient.nodeW, GameClient.nodeH);
 		}
 		head.shift(x, y);
-		head.wrap((int)(GameClient.nodeW * GameClient.nodeWidth), (int)(GameClient.nodeH * GameClient.nodeWidth));
+		head.wrap(GameClient.nodeW, GameClient.nodeH);
+	}
+	public float[] getHeadPos(){
+		if(myNodes.size() == 0) return new float[]{0.0f, 0.0f};
+		return myNodes.get(0).getPos();
+	}
+	public int[] getHeadPosIndex(){
+		float[] pos = getHeadPos();
+		return new int[]{Math.round(pos[0]/GameClient.nodeWidth), Math.round(pos[1]/GameClient.nodeWidth)};
+	}
+	public boolean testEatSelf(){
+		int[] h = getHeadPosIndex();
+		for(int i=1;i<myNodes.size();i++){
+			if(h[0] == myNodes.get(i).getindX() && h[1] == myNodes.get(i).getindY()) {
+				triggerGameOver();
+				return true;
+			}
+		}
+		return false;
+	}
+	public void triggerGameOver(){
+		myPaint.setColor(Color.rgb(200, 60, 60));
 	}
 }

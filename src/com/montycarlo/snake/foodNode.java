@@ -21,6 +21,12 @@ public class foodNode extends Drawable{
 	public float getY(){
 		return y;
 	}
+	public int getindX(){
+		return Math.round(x / GameClient.nodeWidth);
+	}
+	public int getindY(){
+		return Math.round(y / GameClient.nodeWidth);
+	}
 	public void setX(float newX){
 		x = newX;
 	}
