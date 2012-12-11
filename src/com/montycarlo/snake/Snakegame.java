@@ -16,7 +16,19 @@ public class Snakegame extends Activity {
     public void onStart(){
     	super.onStart();
     	myClient = (GameClient)findViewById(R.id.GameClient1);
-    	myClient.onStart();
+    }
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	myClient.onResume();
+    	myClient.setClickable(true);
+    	myClient.setOnTouchListener(myClient);
+    }
+    @Override
+    public void onStop(){
+    	super.onStop();
+    	myClient.onStop();
+    	myClient.setClickable(false);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

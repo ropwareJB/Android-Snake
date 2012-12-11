@@ -1,5 +1,6 @@
 package com.montycarlo.snake;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -9,13 +10,18 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import  android.view.View;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.MotionEvent;
 
-public class GameClient extends View {
+public class GameClient extends View implements OnTouchListener{
 	private Paint myPaint;
 	private int greyedColour = Color.rgb(235, 235, 235);
 	private Snake mySnake;
 	private Timer moveTimer;
+	private float vx, vy;
+	private ArrayList<foodNode> myFood;
 	public static int nodeW;
 	public static int nodeH;
 	public static int myWidth;
@@ -34,21 +40,53 @@ public class GameClient extends View {
 		setMinimumHeight(myHeight);
 		myPaint = new Paint();
 		mySnake = new Snake(5);
+		vx = 0;
+		vy = nodeWidth;
+		myFood = new ArrayList<foodNode>();
+		addFood(1);
+	}
+	public void addFood(int count){
+		foodNode newFood;
+		int sx, sy;
+		for(int i=0;i<count;i++){
+			sx = (int) Math.floor(Math.random() * nodeW);
+			sy = (int) Math.floor(Math.random() * nodeH);
+			newFood = new foodNode(sx * nodeWidth, sy * nodeWidth);
+			myFood.add(newFood);
+		}
 	}
 	public class GameTick extends TimerTask {
 		@Override
 		public void run() {
 			gameTick();
 		}
-
 	}
-
-	public void onStart(){
+	public void onResume(){
 		moveTimer = new Timer();
-		moveTimer.schedule(new GameTick(), 500, 200);
+		moveTimer.schedule(new GameTick(), 500, 100);
+	}
+	public void onStop(){
+		moveTimer.cancel();
+	}
+	public boolean onTouch(View v, MotionEvent event){
+		if(event.getAction() != MotionEvent.ACTION_DOWN) return true;
+		float[] vxs = {0, nodeWidth, 0, -nodeWidth};
+		float[] vys = {nodeWidth, 0, -nodeWidth, 0};
+		int ind = 0;
+		if(vx == 0 && vy>0) ind = 0;
+		else if(vx > 0 && vy == 0) ind = 1;
+		else if(vx == 0 && vy < 0) ind = 2;
+		else if(vx < 0 && vy == 0) ind = 3;
+		if(event.getY() > myHeight/2) ind--;
+		else ind++;
+		if(ind<0) ind += vxs.length;
+		ind %= vxs.length;
+		vx = vxs[ind];
+		vy = vys[ind];
+		return super.onTouchEvent(event);
 	}
 	private void gameTick(){
-		mySnake.shift(0, nodeWidth);
+		mySnake.shift(vx, vy);
 		this.postInvalidate();
 	}
 	@Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
@@ -64,5 +102,6 @@ public class GameClient extends View {
 			}
 		}
 		mySnake.draw(canvas);
+		for(foodNode f : myFood) f.draw(canvas);
 	}
 }

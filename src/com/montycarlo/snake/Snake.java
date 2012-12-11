@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class Snake extends Drawable {
 	private Paint myPaint = new Paint();
-	private int myColour = Color.rgb(0, 220, 50);
+	private int myColour = Color.rgb(20, 20, 20);
 	private List<SnakeNode> myNodes;
 	public Snake(int w){
 		myPaint.setColor(myColour);
