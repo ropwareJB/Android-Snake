@@ -2,6 +2,7 @@ package com.montycarlo.snake;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.view.Menu;
 import android.view.Window;
 
@@ -16,6 +17,7 @@ public class Snakegame extends Activity {
     public void onStart(){
     	super.onStart();
     	myClient = (GameClient)findViewById(R.id.GameClient1);
+    	myClient.setSharedPrefs(getSharedPreferences("com.montycarlo.snake", Context.MODE_PRIVATE));
     }
     @Override
     public void onResume(){

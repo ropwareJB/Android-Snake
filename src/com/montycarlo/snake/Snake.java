@@ -88,4 +88,7 @@ public class Snake extends Drawable {
 	public void triggerGameOver(){
 		myPaint.setColor(Color.rgb(200, 60, 60));
 	}
+	public int getLength(){
+		return myNodes.size();
+	}
 }

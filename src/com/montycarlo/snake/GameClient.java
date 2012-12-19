@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -16,18 +17,22 @@ import android.view.MotionEvent;
 
 public class GameClient extends View implements OnTouchListener{
 	private Paint myPaint;
+	private Paint textPaint;
 	private int greyedColour = Color.rgb(235, 235, 235);
 	private Snake mySnake;
 	private Timer moveTimer;
 	private float vx, vy;
 	private boolean gameover;
+	private int highscore;
 	private ArrayList<foodNode> myFood;
+	private SharedPreferences prefs;
 	public static int nodeW;
 	public static int nodeH;
 	public static int myWidth;
 	public static int myHeight;
 	public static float nodeWidth;
 	public static final int nodeCount = 25;
+	private final String scoreKey = "com.montycarlo.snake.highscore";
 	public GameClient(Context context, AttributeSet attributes){
 		super(context, attributes);
 		DisplayMetrics myMetrics = getContext().getResources().getDisplayMetrics();
@@ -39,11 +44,17 @@ public class GameClient extends View implements OnTouchListener{
 		setMinimumWidth(myWidth);
 		setMinimumHeight(myHeight);
 		myPaint = new Paint();
+		textPaint= new Paint();
+		highscore = 0;
 		vx = 0;
 		vy = nodeWidth;
 		myFood = new ArrayList<foodNode>();
 		addFood(1);
 		restart();
+	}
+	public void setSharedPrefs(SharedPreferences newSharedPref){
+		prefs = newSharedPref;
+		highscore = prefs.getInt(scoreKey, 0);
 	}
 	public void addFood(int count){
 		foodNode newFood;
@@ -116,6 +127,10 @@ public class GameClient extends View implements OnTouchListener{
 		if(mySnake.testEatSelf()){
 			moveTimer.cancel();
 			gameover = true;
+			if(highscore<mySnake.getLength()) {
+				highscore = mySnake.getLength();
+				prefs.edit().putInt(scoreKey, highscore).commit();
+			}
 		}
 	}
 	private void restart(){
@@ -135,6 +150,9 @@ public class GameClient extends View implements OnTouchListener{
 			}
 		}
 		mySnake.draw(canvas);
+		textPaint.setTextSize(20);
+		textPaint.setARGB(150, 0, 0, 0);
 		for(foodNode f : myFood) f.draw(canvas);
+		canvas.drawText("H: " + highscore + ", S:" + mySnake.getLength(), 5, 25, textPaint);
 	}
 }
